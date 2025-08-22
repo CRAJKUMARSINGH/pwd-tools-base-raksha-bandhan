@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWD Tools – Hub</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 0; background: #f7f9fb; color: #1f2937; }
+        header { background: #0ea5e9; color: white; padding: 24px 16px; text-align: center; }
+        main { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+        .card { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e5e7eb; }
+        .card h3 { margin: 0 0 8px; font-size: 18px; }
+        .card p { margin: 0 0 12px; color: #4b5563; font-size: 14px; }
+        .card a { display: inline-block; background: #0ea5e9; color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; }
+        footer { text-align: center; color: #6b7280; padding: 24px; font-size: 14px; }
+        .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+        .row a { background: #eef6ff; color: #0369a1; padding: 6px 10px; border-radius: 6px; text-decoration: none; border: 1px solid #bfdbfe; font-size: 14px; }
+    </style>
+    <meta name="robots" content="noindex" />
+    <meta name="description" content="PWD Tools Hub – static tools and links to the Streamlit app." />
+    <link rel="icon" href="/favicon.ico" />
+</head>
+<body>
+    <header>
+        <h1>PWD Tools – Hub</h1>
+        <p>Static tools below. For receipt PDFs, use the Streamlit app.</p>
+    </header>
+    <main>
+        <section class="grid">
+            <div class="card">
+                <h3>Receipts Generator (Streamlit)</h3>
+                <p>Upload Excel (Payee Name, Amount, Work) and generate RPWA-28 PDF.</p>
+                <a href="https://pwd-tools-raksha-bandhan.streamlit.app/" target="_blank" rel="noopener">Open Streamlit App</a>
+            </div>
+            <div class="card">
+                <h3>Bill Note Sheet</h3>
+                <p>Generate or view bill note sheet.</p>
+                <a href="/tools/BillNoteSheet.html">Open</a>
+            </div>
+            <div class="card">
+                <h3>Deductions Table</h3>
+                <p>Reference table for deductions.</p>
+                <a href="/tools/DeductionsTable.html">Open</a>
+            </div>
+            <div class="card">
+                <h3>Delay Calculator</h3>
+                <p>Compute delays and related metrics.</p>
+                <a href="/tools/DelayCalculator.html">Open</a>
+            </div>
+            <div class="card">
+                <h3>Financial Progress</h3>
+                <p>Track financial progress over time.</p>
+                <a href="/tools/FinancialProgressTracker.html">Open</a>
+            </div>
+            <div class="card">
+                <h3>Security Refund</h3>
+                <p>Calculate expected security refunds.</p>
+                <a href="/tools/SecurityRefund.html">Open</a>
+            </div>
+            <div class="card">
+                <h3>Stamp Duty</h3>
+                <p>Compute applicable stamp duty.</p>
+                <a href="/tools/StampDuty.html">Open</a>
+            </div>
+        </section>
+        <section style="margin-top:24px">
+            <div class="card">
+                <h3>Project Links</h3>
+                <div class="row">
+                    <a href="https://github.com/CRAJKUMARSINGH/pwd-tools-base-raksha-bandhan" target="_blank" rel="noopener">GitHub Repo</a>
+                    <a href="/tools/" target="_self">Browse Tools Folder</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        © 2025 PWD Tools – Raksha Bandhan
+    </footer>
+    
+</body>
+</html>
+
+
