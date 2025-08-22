@@ -1,21 +1,36 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
+import io
 import pandas as pd
 from jinja2 import Template
 import pdfkit
 import os
 from num2words import num2words
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
 
 app = Flask(__name__)
 
 # Configure wkhtmltopdf path (OS-aware)
 import os
 
-if os.name == 'nt':  # Windows
-    wkhtmltopdf_path = 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'  # Adjust if needed
-else:  # Linux or macOS
-    wkhtmltopdf_path = '/usr/bin/wkhtmltopdf'  # Or the path from 'which wkhtmltopdf'
-
-config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+wkhtmltopdf_path = None
+config = None
+try:
+    if os.name == 'nt':
+        candidate = 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
+        if os.path.exists(candidate):
+            wkhtmltopdf_path = candidate
+    else:
+        candidate = '/usr/bin/wkhtmltopdf'
+        if os.path.exists(candidate):
+            wkhtmltopdf_path = candidate
+    if wkhtmltopdf_path:
+        config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+except Exception:
+    config = None
 
 # Improved HTML template for the receipt
 receipt_template = """
@@ -148,35 +163,116 @@ receipt_template = """
 </html>
 """
 
+def _validate_columns(df: pd.DataFrame) -> None:
+    required = ["Payee Name", "Amount", "Work"]
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {', '.join(missing)}")
+
+
+def _rows_to_receipts(df: pd.DataFrame, limit: int = 10):
+    receipts = []
+    for _, row in df.head(limit).iterrows():
+        amount_value = row["Amount"]
+        amount_number = float(amount_value) if pd.notna(amount_value) else 0.0
+        receipts.append({
+            "payee": str(row["Payee Name"]).strip(),
+            "amount": f"{amount_number:,.2f}",
+            "amount_words": num2words(amount_number, lang='en').title(),
+            "work": str(row["Work"]).strip()
+        })
+    return receipts
+
+
+def _build_pdf_reportlab(receipts):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        leftMargin=10 * mm,
+        rightMargin=10 * mm,
+        topMargin=10 * mm,
+        bottomMargin=10 * mm,
+    )
+    styles = getSampleStyleSheet()
+    story = []
+    for idx, receipt in enumerate(receipts):
+        story.append(Paragraph("HAND RECEIPT (RPWA 28)", styles["Title"]))
+        story.append(Paragraph(f"Payable to: - {receipt['payee']} (Electric Contractor)", styles["Heading4"]))
+        story.append(Paragraph("Division - PWD Electric Division, Udaipur", styles["Normal"]))
+        story.append(Spacer(1, 6 * mm))
+
+        lines = [
+            "(1) Cash Book Voucher No. _____    Date _____",
+            "(2) Cheque No. and Date _____",
+            f"(3) Pay for ECS Rs. {receipt['amount']}/- (Rupees {receipt['amount_words']} Only)",
+            "(4) Paid by me",
+            (
+                f"(5) Received from The Executive Engineer PWD Electric Division, Udaipur the sum of Rs."
+                f" {receipt['amount']}/- (Rupees {receipt['amount_words']} Only)"
+            ),
+            f"Name of work for which payment is made: {receipt['work']}",
+            "Chargeable to Head:- 8443 [EMD- Refund]",
+        ]
+        for t in lines:
+            story.append(Paragraph(t, styles["Normal"]))
+
+        story.append(Spacer(1, 6 * mm))
+        signature_table = Table([
+            ["Witness", "Stamp", "Signature of payee"],
+            ["Cash Book No. _____ Page No. _____", "", ""],
+        ], colWidths=[60 * mm, 30 * mm, 70 * mm])
+        signature_table.setStyle(TableStyle([["GRID", (0, 0), (-1, -1), 0.5, colors.grey], ["ALIGN", (0, 0), (-1, -1), "LEFT"]]))
+        story.append(signature_table)
+
+        story.append(Spacer(1, 6 * mm))
+        offices_table = Table([
+            ["For use in the Divisional Office", "For use in the Accountant General's office"],
+            ["Checked", "Audited/Reviewed"],
+            ["Accounts Clerk", "DA      Auditor      Supdt.      G.O."],
+        ], colWidths=[80 * mm, 80 * mm])
+        offices_table.setStyle(TableStyle([["GRID", (0, 0), (-1, -1), 0.5, colors.black], ["ALIGN", (0, 0), (-1, -1), "LEFT"]]))
+        story.append(offices_table)
+
+        story.append(Spacer(1, 8 * mm))
+        for t in [
+            f"Passed for Rs. {receipt['amount']}",
+            f"In Words Rupees: {receipt['amount_words']} Only",
+            "Chargeable to Head:- 8443 [EMD- Refund]",
+            "Ar.                    D.A.                    E.E.",
+        ]:
+            story.append(Paragraph(t, styles["Normal"]))
+        if idx < len(receipts) - 1:
+            story.append(Spacer(1, 12 * mm))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.read()
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
+        if "file" not in request.files or request.files["file"].filename == "":
+            return jsonify({"error": "No file uploaded"}), 400
         file = request.files["file"]
-        if file:
-            try:
-                df = pd.read_excel(file)
-                df = df.head(10)
+        try:
+            df = pd.read_excel(file)
+            _validate_columns(df)
+            receipts = _rows_to_receipts(df)
 
-                receipts = []
-                for _, row in df.iterrows():
-                    receipts.append({
-                        "payee": row["Payee Name"],
-                        "amount": row["Amount"],
-                        "amount_words": num2words(row["Amount"], lang='en').title(),
-                        "work": row["Work"]
-                    })
+            rendered_html = Template(receipt_template).render(receipts=receipts)
+            script_dir = os.path.dirname(__file__)
+            pdf_file = os.path.join(script_dir, "receipts.pdf")
 
-                rendered_html = Template(receipt_template).render(receipts=receipts)
-
-                script_dir = os.path.dirname(__file__)
-                pdf_file = os.path.join(script_dir, "receipts.pdf")
-
+            if config is not None and wkhtmltopdf_path is not None:
                 pdfkit.from_string(rendered_html, pdf_file, options={"page-size": "A4"}, configuration=config)
-
                 return send_file(pdf_file, as_attachment=True)
-
-            except Exception as e:
-                return f"An error occurred: {e}"
+            else:
+                pdf_bytes = _build_pdf_reportlab(receipts)
+                return send_file(io.BytesIO(pdf_bytes), as_attachment=True, download_name="receipts.pdf", mimetype="application/pdf")
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
 
     return render_template("index.html")
 
