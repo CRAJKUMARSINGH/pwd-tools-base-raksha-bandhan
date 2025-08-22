@@ -1,8 +1,10 @@
 import io
+import os
 from typing import List, Dict
 
 import pandas as pd
 import streamlit as st
+from streamlit.components.v1 import html as st_html
 from num2words import num2words
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
@@ -129,28 +131,79 @@ def _build_pdf(receipts: List[Dict[str, str]]) -> bytes:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Hand Receipt Generator (RPWA 28)")
-    st.title("Hand Receipt Generator (RPWA 28)")
-    st.caption("Upload Excel with columns: Payee Name, Amount, Work. Generates a PDF (A4).")
+    st.set_page_config(page_title="PWD Tools Hub – Raksha Bandhan")
+    st.title("PWD Tools Hub – Raksha Bandhan")
+    st.caption("Use the tabs below to access each tool. Receipt PDF generation runs offline without wkhtmltopdf.")
 
-    uploaded_file = st.file_uploader("Upload .xlsx file", type=["xlsx"]) 
-    max_rows = st.number_input("Limit number of rows", min_value=1, max_value=1000, value=10, step=1)
+    tab_labels = [
+        "Receipts (RPWA 28)",
+        "Bill Note Sheet",
+        "Deductions Table",
+        "Delay Calculator",
+        "Financial Progress",
+        "Security Refund",
+        "Stamp Duty",
+    ]
+    (
+        tab_receipts,
+        tab_bill,
+        tab_deductions,
+        tab_delay,
+        tab_finprog,
+        tab_sec_refund,
+        tab_stamp_duty,
+    ) = st.tabs(tab_labels)
 
-    if uploaded_file is not None:
+    with tab_receipts:
+        st.subheader("Hand Receipt Generator (RPWA 28)")
+        st.caption("Upload Excel with columns: Payee Name, Amount, Work. Generates a PDF (A4).")
+        uploaded_file = st.file_uploader("Upload .xlsx file", type=["xlsx"]) 
+        max_rows = st.number_input("Limit number of rows", min_value=1, max_value=1000, value=10, step=1, key="rows_receipts")
+        if uploaded_file is not None:
+            try:
+                df = pd.read_excel(uploaded_file)
+                _validate_dataframe_has_required_columns(df)
+                receipts = _dataframe_to_receipts(df, limit=int(max_rows))
+                pdf_bytes = _build_pdf(receipts)
+                st.download_button(
+                    label="Download PDF",
+                    data=pdf_bytes,
+                    file_name="receipts.pdf",
+                    mime="application/pdf",
+                )
+                st.success(f"Generated {len(receipts)} receipts.")
+            except Exception as error:
+                st.error(f"Error: {error}")
+
+    def _tool_path(filename: str) -> str:
+        base_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "public", "tools"))
+        return os.path.join(base_dir, filename)
+
+    def _render_html_tool(filename: str, height: int = 900) -> None:
         try:
-            df = pd.read_excel(uploaded_file)
-            _validate_dataframe_has_required_columns(df)
-            receipts = _dataframe_to_receipts(df, limit=int(max_rows))
-            pdf_bytes = _build_pdf(receipts)
-            st.download_button(
-                label="Download PDF",
-                data=pdf_bytes,
-                file_name="receipts.pdf",
-                mime="application/pdf",
-            )
-            st.success(f"Generated {len(receipts)} receipts.")
+            with open(_tool_path(filename), "r", encoding="utf-8") as f:
+                content = f.read()
+            st_html(content, height=height, scrolling=True)
         except Exception as error:
-            st.error(f"Error: {error}")
+            st.error(f"Unable to load tool '{filename}': {error}")
+
+    with tab_bill:
+        _render_html_tool("BillNoteSheet.html")
+
+    with tab_deductions:
+        _render_html_tool("DeductionsTable.html")
+
+    with tab_delay:
+        _render_html_tool("DelayCalculator.html")
+
+    with tab_finprog:
+        _render_html_tool("FinancialProgressTracker.html")
+
+    with tab_sec_refund:
+        _render_html_tool("SecurityRefund.html")
+
+    with tab_stamp_duty:
+        _render_html_tool("StampDuty.html")
 
 
 if __name__ == "__main__":
