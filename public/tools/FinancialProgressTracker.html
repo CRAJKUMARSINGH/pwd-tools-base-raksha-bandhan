@@ -551,18 +551,22 @@
                 requiredProgress = workOrderAmount * (elapsedDays / totalProjectDuration);
                 
                 // Custom penalty rates based on lag percentage
-                const lagPercentage = (requiredProgress - actualProgressInr) / requiredProgress;
-                
-                if (lagPercentage <= 0) {
+                if (requiredProgress <= 0) {
                     penaltyRate = 0;
-                } else if (lagPercentage <= 0.25) {
-                    penaltyRate = 0.025;
-                } else if (lagPercentage <= 0.50) {
-                    penaltyRate = 0.05;
-                } else if (lagPercentage <= 0.75) {
-                    penaltyRate = 0.075;
                 } else {
-                    penaltyRate = 0.10;
+                    const lagPercentage = (requiredProgress - actualProgressInr) / requiredProgress;
+                    
+                    if (lagPercentage <= 0) {
+                        penaltyRate = 0;
+                    } else if (lagPercentage <= 0.25) {
+                        penaltyRate = 0.025;
+                    } else if (lagPercentage <= 0.50) {
+                        penaltyRate = 0.05;
+                    } else if (lagPercentage <= 0.75) {
+                        penaltyRate = 0.075;
+                    } else {
+                        penaltyRate = 0.10;
+                    }
                 }
             }
 
@@ -571,7 +575,7 @@
             const penalty = penaltyRate * unexecutedWork;
             
             // Calculate financial progress percentage
-            const financialProgress = (actualProgressInr / requiredProgress) * 100;
+            const financialProgress = requiredProgress > 0 ? (actualProgressInr / requiredProgress) * 100 : 100;
             
             // Update financial progress bar
             const financialProgressBar = document.getElementById("financialProgressBar");

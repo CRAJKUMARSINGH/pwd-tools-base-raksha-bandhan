@@ -89,12 +89,12 @@
                 return;
             }
 
-            if (actualCompletion < scheduledCompletion) {
-                document.getElementById('result').textContent = "Actual completion cannot be before scheduled completion.";
+            if (scheduledCompletion < scheduledStart) {
+                document.getElementById('result').textContent = "Scheduled completion must be on or after scheduled start.";
                 return;
             }
 
-            const delayMilliseconds = actualCompletion - scheduledCompletion;
+            const delayMilliseconds = Math.max(0, actualCompletion - scheduledCompletion);
 
             const years = Math.floor(delayMilliseconds / (1000 * 60 * 60 * 24 * 365.25));
             const remainingMilliseconds = delayMilliseconds % (1000 * 60 * 60 * 24 * 365.25);
@@ -105,7 +105,11 @@
             const formattedScheduledCompletion = formatDate(scheduledCompletion);
             const formattedActualCompletion = formatDate(actualCompletion);
 
-            document.getElementById('result').textContent = `Scheduled Start: ${formattedScheduledStart}, Scheduled Completion: ${formattedScheduledCompletion}, Actual Completion: ${formattedActualCompletion}, Delay: ${years} years, ${months} months, ${days} days`;
+            const delayText = delayMilliseconds === 0
+                ? 'No delay'
+                : `${years} years, ${months} months, ${days} days`;
+
+            document.getElementById('result').textContent = `Scheduled Start: ${formattedScheduledStart}, Scheduled Completion: ${formattedScheduledCompletion}, Actual Completion: ${formattedActualCompletion}, Delay: ${delayText}`;
         }
     </script>
 </body>
