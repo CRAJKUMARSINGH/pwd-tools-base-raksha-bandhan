@@ -1,12 +1,13 @@
-flask
-pandas
-jinja2
-num2words
-openpyxl
-gunicorn
-pdfkit
-streamlit
-reportlab
+flask==3.0.0
+pandas==2.0.3
+jinja2==3.1.2
+num2words==0.5.14
+openpyxl==3.1.2
+gunicorn==21.2.0
+pdfkit==1.0.0
+streamlit==1.28.1
+reportlab==4.0.7
+pyarrow==12.0.1
 
 
 
