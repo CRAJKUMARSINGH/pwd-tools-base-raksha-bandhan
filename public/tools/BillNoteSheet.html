@@ -196,6 +196,24 @@
             color: white;
         }
         
+        /* Back to Main Button */
+        .back-to-main {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-main:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
         @media print {
             body * {
                 visibility: hidden;
@@ -235,6 +253,14 @@
 <body>
     <div class="form-container">
         <h2>बिल नोट शीट जेनरेटर (हिन्दी)</h2>
+        
+        <!-- Back to Main Landing Page Button -->
+        <a href="../index.html" class="back-to-main">🏠 Back to Main Landing Page</a>
+
+        <div class="form-group">
+            <label for="billNumber" class="required">बिल संख्या (Bill Number):</label>
+            <input type="text" id="billNumber" required>
+        </div>
         
         <div class="section-title">बिल प्रकार</div>
         <div class="form-group">

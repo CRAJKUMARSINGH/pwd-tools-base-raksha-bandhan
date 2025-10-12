@@ -41,11 +41,32 @@
             margin-top: 20px;
             font-weight: bold;
         }
+        
+        /* Back to Main Button */
+        .back-to-main {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-main:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
     <div class="calculator">
         <h2>Delay Calculator</h2>
+        
+        <!-- Back to Main Landing Page Button -->
+        <a href="../index.html" class="back-to-main">🏠 Back to Main Landing Page</a>
 
         <div class="input-group">
             <label for="scheduledStart">Scheduled Start Date (dd/mm/yyyy):</label>

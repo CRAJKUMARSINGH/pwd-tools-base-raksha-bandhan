@@ -8,8 +8,6 @@ echo This will start the PWD Tools application
 echo Please wait while we set up the environment...
 echo.
 
-cd /d "%~dp0Excel_se_EMD"
-
 echo Installing required packages...
 pip install -r requirements.txt
 

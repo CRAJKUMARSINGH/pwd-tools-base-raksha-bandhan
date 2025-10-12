@@ -4,6 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stamp Duty Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 8px;
+        }
+        #result {
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        /* Back to Main Button */
+        .back-to-main {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-main:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+    </style>
     <script>
         function calculateStampDuty() {
             let workOrderAmount = parseFloat(document.getElementById("workOrderAmount").value);
@@ -24,6 +59,10 @@
 </head>
 <body>
     <h2>Stamp Duty Calculator</h2>
+    
+    <!-- Back to Main Landing Page Button -->
+    <a href="../index.html" class="back-to-main">🏠 Back to Main Landing Page</a>
+
     <label for="workOrderAmount">Enter Work Order Amount (Rs.):</label>
     <input type="number" id="workOrderAmount" min="0" step="1">
     <button onclick="calculateStampDuty()">Calculate</button>

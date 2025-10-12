@@ -1,2 +1,39 @@
--r Excel_se_EMD/requirements.txt
+# Enhanced PWD Tools Requirements
+# CustomTkinter and UI Dependencies
+customtkinter>=5.2.0
+tkinter-tooltip>=2.1.0
+tkcalendar>=1.6.1
 
+# Data Processing and Analysis
+pandas>=1.5.0
+numpy>=1.21.0
+openpyxl>=3.0.0
+
+# Visualization and Charts
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.0.0
+
+# PDF Generation and Reporting
+reportlab>=3.6.0
+fpdf2>=2.5.0
+
+# Date and Time Handling
+python-dateutil>=2.8.0
+
+# File Operations and Data Storage
+Pillow>=9.0.0
+python-docx>=0.8.11
+
+# Web Framework (if needed for integration)
+flask>=2.0.0
+streamlit>=1.20.0
+
+# Development and Testing
+pytest>=7.0.0
+black>=22.0.0
+flake8>=4.0.0
+
+# Optional: Enhanced UI components
+tkinterDnD2>=0.3.0
+customtkinter-color-picker>=1.0.0
